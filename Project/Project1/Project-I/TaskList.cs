@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Project.Project1.Project_I
+﻿namespace Project.Project1.Project_I
 {
     internal class TaskList
     {
@@ -14,6 +8,11 @@ namespace Project.Project1.Project_I
         public TaskList()
         {
             tasks = new List<Task>();
+        }
+
+        public int TaskCount()
+        {
+            return tasks.Count;
         }
 
         public void AddTask(Task task)
@@ -37,21 +36,27 @@ namespace Project.Project1.Project_I
                     break;
             }
 
-            foreach (Task task in displayTasks)
+            for (int i = 0; i < displayTasks.Count; i++)
             {
-                Console.WriteLine(task);
+                Console.WriteLine($"{i}: {displayTasks[i]}");
             }
+
+            //foreach (Task task in displayTasks)
+            //{
+            //    Console.WriteLine(task);
+            //}
         }
 
         public void SaveTasks(string filePath)
         {
-            List<string> lines = tasks.Select(t => $"{t.Titel},{t.DueDate},{t.Status},{t.Project}").ToList();
+            List<string> lines = tasks.Select(t => $"{t.Title},{t.DueDate.ToString("yyyy-MM-dd")},{t.Status},{t.Project}").ToList();
             File.WriteAllLines(filePath, lines);
         }
 
         public void LoadTasks(string filePath)
         {
-            if (!File.Exists(filePath)) {
+            if (!File.Exists(filePath))
+            {
                 Console.WriteLine("No existing task file found");
                 return;
             }
@@ -82,37 +87,53 @@ namespace Project.Project1.Project_I
             }
         }
 
-        public void EditTasks(int taskId) 
+        public void EditTask(int taskId, string newTitle, DateTime? newDueDate)
         {
-            if (taskId < 0 || taskId >= tasks.Count) 
+            if (taskId < 0 || taskId >= tasks.Count)
             {
-                Console.WriteLine("Invalid task ID");
+                Console.WriteLine("Invalid task ID.");
                 return;
             }
 
             Task taskToEdit = tasks[taskId];
-            Console.WriteLine("Editing Task: " + taskToEdit);
 
-            Console.WriteLine("Please Input new title (Leave blank to keep current): ");
-            string newTitle = Console.ReadLine();
-            if(!string.IsNullOrEmpty(newTitle))
+            if (!string.IsNullOrEmpty(newTitle))
             {
-                taskToEdit.Titel = newTitle;
+                taskToEdit.Title = newTitle;
             }
 
-            Console.WriteLine("Please Input new due date (yyyy-MM-dd, Leave blank to keep current): ");
-            string newDueDate = Console.ReadLine();
-            if (!string.IsNullOrEmpty(newDueDate))
+            if (newDueDate.HasValue)
             {
-                if (DateTime.TryParseExact(newDueDate, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime newDDate))
-                {
-                    taskToEdit.DueDate = newDDate;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid date format.");
-                }
+                taskToEdit.DueDate = newDueDate.Value;
             }
+
+            Console.WriteLine("Task updated successfully.");
+        }
+
+
+        public void MarkAsDone(int taskId)
+        {
+            if (taskId < 0 || taskId >= tasks.Count)
+            {
+                Console.WriteLine("Invalid task ID.");
+                return;
+            }
+
+            Task taskToMark = tasks[taskId];
+            taskToMark.Status = "Completed";
+            Console.WriteLine($"Task '{taskToMark.Title}' marked as completed.");
+        }
+
+        public void RemoveTask(int taskId)
+        {
+            if (taskId < 0 || taskId >= tasks.Count)
+            {
+                Console.WriteLine("Invalid task ID.");
+                return;
+            }
+
+            tasks.RemoveAt(taskId);
+            Console.WriteLine("Task removed successfully.");
         }
     }
 }
