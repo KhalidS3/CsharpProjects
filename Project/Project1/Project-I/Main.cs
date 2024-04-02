@@ -4,32 +4,32 @@ namespace Project.Project1.Project_I
 {
     class Program
     {
-        static TaskList taskList = new TaskList();
+        static TaskList taskList = new TaskList(); // Create a new TaskList object
         static void Main()
         {
-
             Console.WriteLine("Welcome to ToDoLy");
-            taskList.LoadTasks("D:\\Lexicon\\Project\\Project\\Project1\\Project-I\\tasks.txt");
+            taskList.LoadTasks("D:\\Lexicon\\Project\\Project\\Project1\\Project-I\\tasks.txt"); // Load tasks from file
+            taskList.NotifyTaskDueDate(); // Notify about tasks due date
 
             bool running = true;
 
-            while (running)
+            while (running) // Main loop
             {
-                DisplayMainMenu();
-                string option = Console.ReadLine();
-                switch (option)
+                DisplayMainMenu(); // Display main menu
+                string option = Console.ReadLine(); // Read user's option
+                switch (option) // Process user's option
                 {
                     case "1":
-                        ShowTasks();
+                        ShowTasks(); // Show tasks
                         break;
                     case "2":
-                        AddNewTask();
+                        AddNewTask(); // Add new task
                         break;
                     case "3":
-                        EditTaskInteractive();
+                        EditTaskInteractive(); // Edit task
                         break;
                     case "4":
-                        SaveAndQuit();
+                        SaveAndQuit(); // Save tasks and quit
                         running = false;
                         break;
                     default:
@@ -41,6 +41,7 @@ namespace Project.Project1.Project_I
             }
         }
 
+        // Displays the main menu
         static void DisplayMainMenu()
         {
             Console.WriteLine("\nPick an option:");
@@ -50,13 +51,26 @@ namespace Project.Project1.Project_I
             Console.WriteLine("(4) Save and Quit");
         }
 
+        // Shows tasks
         static void ShowTasks()
         {
-            Console.WriteLine("Show tasks by (date) or (project)?");
-            string sortOrder = Console.ReadLine();
-            taskList.ShowTasks(sortOrder);
+            string sortOrder = string.Empty;
+            do
+            {
+                Console.WriteLine("Show tasks by (date) or (project)?");
+                sortOrder = Console.ReadLine().ToLower();
+                if (!new[] { "date", "project" }.Any(order => order == sortOrder)) // Check if the input is in the array
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid input, please enter either 'date' or 'project'.");
+                    Console.ResetColor();
+                }
+            } while (!new[] { "date", "project" }.Any(order => order == sortOrder));
+
+            taskList.ShowTasks(sortOrder); // Show tasks sorted by sortOrder
         }
 
+        // Adds a new task
         static void AddNewTask()
         {
             Console.WriteLine("Enter task title:");
@@ -74,14 +88,14 @@ namespace Project.Project1.Project_I
             Console.WriteLine("Enter project name:");
             string project = Console.ReadLine();
 
-            Task newTask = new Task(title, dueDate, "Pending", project);
-            taskList.AddTask(newTask);
+            Task newTask = new Task(title, dueDate, "Pending", project); // Create new task
+            taskList.AddTask(newTask); // Add new task to the list
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task added successfully.");
             Console.ResetColor();
-
         }
 
+        // Gets and validates task ID
         static int GetAndValidateTaskId()
         {
             int taskId;
@@ -98,6 +112,7 @@ namespace Project.Project1.Project_I
         }
 
 
+        // Edits a task
         static void EditTaskInteractive()
         {
             bool running = true;
@@ -136,21 +151,27 @@ namespace Project.Project1.Project_I
 
         }
 
+        // This function is used to edit a specific task
         static void EditSpecificTask()
         {
+            // Get and validate the task ID
             int taskId = GetAndValidateTaskId();
+            // If the task ID is -1 (invalid), return immediately
             if (taskId == -1)
             {
                 return;
             }
 
+            // Prompt the user to enter a new title for the task
             Console.WriteLine("Enter new title (leave blank to keep current):");
             string newTitle = Console.ReadLine();
 
+            // Prompt the user to enter a new due date for the task
             Console.WriteLine("Enter new due date (yyyy-MM-dd, leave blank to keep current):");
             string newDueDateString = Console.ReadLine();
             DateTime? newDueDate = null;
 
+            // If the user entered a new due date, try to parse it
             if (!string.IsNullOrEmpty(newDueDateString))
             {
                 if (DateTime.TryParseExact(newDueDateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
@@ -159,6 +180,7 @@ namespace Project.Project1.Project_I
                 }
                 else
                 {
+                    // If the date format is invalid, display an error message and return immediately
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Invalid date format. Please enter the date in yyyy-MM-dd format.");
                     Console.ResetColor();
@@ -167,15 +189,19 @@ namespace Project.Project1.Project_I
                 }
             }
 
+            // Edit the task with the new title and/or due date
             taskList.EditTask(taskId, newTitle, newDueDate);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task edited successfully.");
             Console.ResetColor();
         }
 
+        // This function is used to mark a task as done
         static void MarkTaskAsDone()
         {
+            // Get and validate the task ID
             int taskId = GetAndValidateTaskId();
+            // If the task ID is -1 (invalid), return immediately
             if (taskId == -1)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -183,15 +209,19 @@ namespace Project.Project1.Project_I
                 return;
             }
 
+            // Mark the task as done
             taskList.MarkAsDone(taskId);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task updated status to successfully.");
             Console.ResetColor();
         }
 
+        // This function is used to remove a task
         static void RemoveATask()
         {
+            // Get and validate the task ID
             int taskId = GetAndValidateTaskId();
+            // If the task ID is -1 (invalid), return immediately
             if (taskId == -1)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -199,15 +229,19 @@ namespace Project.Project1.Project_I
                 return;
             }
 
+            // Remove the task
             taskList.RemoveTask(taskId);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task removed successfully.");
             Console.ResetColor();
         }
 
+        // This function is used to save the tasks and quit the application
         static void SaveAndQuit()
         {
+            // Save the tasks to a file
             taskList.SaveTasks("D:\\Lexicon\\Project\\Project\\Project1\\Project-I\\tasks.txt");
+            // Notify the user that the tasks have been saved and the application is exiting
             Console.WriteLine("Tasks saved. Exiting application...");
         }
     }
