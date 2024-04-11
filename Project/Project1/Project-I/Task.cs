@@ -1,26 +1,17 @@
-﻿namespace Project.Project1.Project_I
+﻿public abstract class Task
 {
-    internal class Task
-    {
-        // Class Properties
-        public string Title { get; set; }
-        public DateTime DueDate { get; set; }
-        public string Status { get; set; }
-        public string Project { get; set; }
+    public string Title { get; set; }
+    public DateTime DueDate { get; set; }
+    public string Status { get; set; }
+    public string Project { get; set; }
 
-        // Class constructor
-        public Task(string title, DateTime dueDate, string status, string project)
-        {
-            Title = title;
-            DueDate = dueDate;
-            Status = status;
-            Project = project;
-        }
+    public abstract string DisplayTaskDetails();
+}
 
-        // Class methods
-        public override string ToString()
-        {
-            return $"{Title} due on {DueDate.ToShortDateString()}, Status: {Status}, Project: {Project}";
-        }
-    }
+public interface ITaskListManager
+{
+    void AddTask(Task task);
+    void EditTask(int taskId, string newTitle, DateTime? newDueDate);
+    void MarkAsDone(int taskId);
+    void RemoveTask(int taskId);
 }

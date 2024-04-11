@@ -1,13 +1,13 @@
 ﻿namespace Project.Project1.Project_I
 {
-    internal class TaskList
+    internal class TaskListManager: ITaskListManager
     {
-        private List<Task> tasks; // List to store tasks
+        private List<TodoTask> tasks; // List to store tasks
 
         // Constructor
-        public TaskList()
+        public TaskListManager()
         {
-            tasks = new List<Task>(); // Initialize the tasks list
+            tasks = new List<TodoTask>(); // Initialize the tasks list
         }
 
         // Returns the count of tasks
@@ -19,13 +19,16 @@
         // Adds a new task to the list
         public void AddTask(Task task)
         {
-            tasks.Add(task);
+            if (task is TodoTask todoTask)
+            {
+                tasks.Add(todoTask);
+            }
         }
 
         // Displays tasks sorted by the provided sortOrder
         public void ShowTasks(string sortOrder)
         {
-            List<Task> displayTasks = tasks; // Create a copy of the tasks list
+            List<TodoTask> displayTasks = tasks.ToList(); // Create a copy of the tasks list
             switch (sortOrder.ToLower())
             {
                 case "date":
@@ -39,14 +42,18 @@
                 default:
                     // Invalid sort order
                     Console.WriteLine("Invalid sort order. Please choose either 'date' or 'project'.");
-                    break;
+                    return;
             }
 
-            // Display tasks
-            for (int i = 0; i < displayTasks.Count; i++)
+            // Display tasks with line numbers as IDs
+            foreach (var task in displayTasks)
             {
-                Console.WriteLine($"ID: {i + 1}, {displayTasks[i]}");
+                Console.WriteLine($"ID: {task.OriginalId}, {task.DisplayTaskDetails()}");
             }
+            //for (int i = 0; i < displayTasks.Count; i++)
+            //{
+            //    Console.WriteLine($"ID: {i + 1}, {displayTasks[i].DisplayTaskDetails()}");
+            //}
         }
 
         // Saves tasks to a file
@@ -74,6 +81,30 @@
             List<string> lines = new List<string>(File.ReadAllLines(filePath));
 
             // Parse tasks from lines
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string line = lines[i];
+                string[] parts = line.Split(',');
+                if (parts.Length != 4)
+                {
+                    Console.WriteLine("Skipping invalid task line.");
+                    continue;
+                }
+
+                try
+                {
+                    TodoTask task = new TodoTask(parts[0], DateTime.Parse(parts[1]), parts[2], parts[3])
+                    {
+                        OriginalId = i + 1 // Set OriginalId to line number
+                    };
+                    tasks.Add(task);
+                }
+                catch
+                {
+                    Console.WriteLine("Error parsing task line. Check date format.");
+                }
+            }
+            /*
             foreach (var line in lines)
             {
                 string[] parts = line.Split(',');
@@ -87,7 +118,7 @@
                 try
                 {
                     // Create task and add to list
-                    Task task = new Task(parts[0], DateTime.Parse(parts[1]), parts[2], parts[3]);
+                    TodoTask task = new TodoTask(parts[0], DateTime.Parse(parts[1]), parts[2], parts[3]);
                     tasks.Add(task);
                 }
                 catch
@@ -96,12 +127,13 @@
                     Console.WriteLine("Error parsing task line. Check date format.");
                 }
             }
+            */
         }
 
         // Edits a task
         public void EditTask(int taskId, string newTitle, DateTime? newDueDate)
         {
-            Task taskToEdit;
+            TodoTask taskToEdit;
             try
             {
                 // Get task by ID
@@ -132,7 +164,7 @@
         // Marks a task as done
         public void MarkAsDone(int taskId)
         {
-            Task taskToMark;
+            TodoTask taskToMark;
             try
             {
                 // Get task by ID
@@ -153,7 +185,7 @@
         // Removes a task
         public void RemoveTask(int taskId)
         {
-            Task taskToRemove;
+            TodoTask taskToRemove;
             try
             {
                 // Get task by ID
@@ -172,7 +204,7 @@
         }
 
         // Gets a task by its ID
-        public Task GetTaskById(int id)
+        public TodoTask GetTaskById(int id)
         {
             if (id >= 1 && id <= tasks.Count)
             {
@@ -205,6 +237,12 @@
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Task '{task.Title}' is overdue.");
+                }
+                else if (task.DueDate.Date == now.AddDays(1).Date)
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"Task '{task.Title}' is due tomorrow.");
+
                 }
                 else
                 {

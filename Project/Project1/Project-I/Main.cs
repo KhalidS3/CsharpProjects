@@ -4,11 +4,11 @@ namespace Project.Project1.Project_I
 {
     class Program
     {
-        static TaskList taskList = new TaskList(); // Create a new TaskList object
+        static TaskListManager taskList = new TaskListManager(); // Create a new TaskList object
         static void Main()
         {
             Console.WriteLine("Welcome to ToDoLy");
-            taskList.LoadTasks("D:\\Lexicon\\Project\\Project\\Project1\\Project-I\\tasks.txt"); // Load tasks from file
+            taskList.LoadTasks(@"D:\Lexicon\Project\Project\bin\Debug\net8.0\tasks.txt"); // Load tasks from file
             taskList.NotifyTaskDueDate(); // Notify about tasks due date
 
             bool running = true;
@@ -88,7 +88,7 @@ namespace Project.Project1.Project_I
             Console.WriteLine("Enter project name:");
             string project = Console.ReadLine();
 
-            Task newTask = new Task(title, dueDate, "Pending", project); // Create new task
+            TodoTask newTask = new TodoTask(title, dueDate, "Pending", project); // Create new task
             taskList.AddTask(newTask); // Add new task to the list
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task added successfully.");
@@ -240,7 +240,7 @@ namespace Project.Project1.Project_I
         static void SaveAndQuit()
         {
             // Save the tasks to a file
-            taskList.SaveTasks("D:\\Lexicon\\Project\\Project\\Project1\\Project-I\\tasks.txt");
+            taskList.SaveTasks(@"D:\Lexicon\Project\Project\bin\Debug\net8.0\tasks.txt");
             // Notify the user that the tasks have been saved and the application is exiting
             Console.WriteLine("Tasks saved. Exiting application...");
         }
