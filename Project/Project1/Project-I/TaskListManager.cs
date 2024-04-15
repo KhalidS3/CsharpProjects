@@ -19,6 +19,7 @@
         // Adds a new task to the list
         public void AddTask(Task task)
         {
+            // polymorphism, Check if the task is of type TodoTask
             if (task is TodoTask todoTask)
             {
                 tasks.Add(todoTask);
